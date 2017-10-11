@@ -1,0 +1,64 @@
+
+    public static final String KEY_NAME = "Name";
+    public static final String KEY_CATNAME = "CatName";
+    public static final String KEY_DATE = "Date";
+    public static final String KEY_TYPE = "CheckNum";
+    public static final String KEY_AMOUNT = "Amount";
+    public static final String KEY_CAT = "Category";
+    public static final String KEY_ROWID = "_id";   //required field for the cursorAdapter
+    private static final String TAG = "SQLitehelper";
+
+    private static final String DATABASE_NAME = "myCheckBook.db";
+    public static final String TABLE_CAT = "category";
+    public static final String TABLE_CHECKING = "checking";
+
+
+
+    // Table creation sql statement
+    private static final String CREATE_TABLE_CAT =
+            "CREATE TABLE " + TABLE_CAT + " (" +
+                    KEY_ROWID + " integer PRIMARY KEY autoincrement," +  //this line is required for the cursorAdapter.
+                    KEY_CATNAME + " TEXT );";
+
+
+    // table creation sql statement for checking
+    private static final String CREATE_TABLE_CHECKING =
+            "CREATE TABLE " + TABLE_CHECKING + " (" +
+                    KEY_ROWID + " integer PRIMARY KEY autoincrement," +  //this line is required for the cursorAdapter.
+                    KEY_DATE + " TEXT, " +
+                    KEY_TYPE + " TEXT, " +
+                    KEY_NAME + " TEXT, " +
+                    KEY_AMOUNT + " REAL, " +
+                    KEY_CAT + " INTEGER, " +
+                    "FOREIGN KEY(" + KEY_CAT + ") REFERENCES " + TABLE_CAT + "(" + KEY_CAT + ")" +" );";
+
+    //this one is used as a wrapper for the ContentProvider for the query of the transaction table.  NOT the catergory table.
+// Where TableName is "checking" from the variable TABLE_CHECKING.
+    public Cursor cpQueryJoin(String TableName, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        qb.setTables(TableName
+                        + " INNER JOIN "
+                        + mySQLiteHelper.TABLE_CAT
+                        + " ON "
+                        + mySQLiteHelper.KEY_CAT
+                        + " = "
+                        + (mySQLiteHelper.TABLE_CAT + "." + mySQLiteHelper.KEY_ROWID)
+        );
+        if (projection != null) {
+            //add to the selection for the KEY_CATNAME
+            projection = append(projection, mySQLiteHelper.KEY_CATNAME);
+        }
+        //Cursor mCursor = db.rawQuery("select * from checking a INNER JOIN category b ON a.Category=b._ID",null)
+        //using the query builder to manage the actual query at this point.
+        return qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+    }
+
+
+For cosc 5730 students:
+
+    public static final String TABLE_ACCOUNTS = "accounts";
+    // table creation sql statement for accounts
+    private static final String CREATE_TABLE_LIST =
+            "CREATE TABLE " + TABLE_ACCOUNTS + " (" +
+                    KEY_ROWID + " integer PRIMARY KEY autoincrement," +  //this line is required for the cursorAdapter.
+                    KEY_NAME + " TEXT );";
