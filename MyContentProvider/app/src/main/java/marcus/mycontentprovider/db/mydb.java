@@ -89,7 +89,7 @@ public class mydb {
         return this.db.rawQuery(sql, null);
     }
 
-    public void shinny() {
+    /*public void shinny() {
         this.DBHelper.onUpgrade(this.db, 7, 8);
-    }
+    }*/
 }

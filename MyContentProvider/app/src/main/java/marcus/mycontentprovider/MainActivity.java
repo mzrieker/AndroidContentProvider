@@ -36,16 +36,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mydb db = new mydb(getApplicationContext());
                 db.open();
-                db.shinny();
+                //db.shinny();
                 db.close();
-
             }
         });
     }
-    /*public void resetDB() {
-        mydb db = new mydb(getApplicationContext());
-        db.open();
-        db.shinny();
-        db.close();
-    }*/
 }

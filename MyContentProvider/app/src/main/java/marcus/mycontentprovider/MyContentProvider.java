@@ -1,7 +1,13 @@
 package marcus.mycontentprovider;
 
-//Marcus Rieker 10.23.2017
-//Used some help from Jim Ward's lectures and examples found here: https://github.com/JimSeker/Android-Examples
+// Marcus Rieker 10.23.2017
+// Referenced Jim Ward's lectures and examples found here: https://github.com/JimSeker/saveData
+// Specifically: https://github.com/JimSeker/saveData/tree/master/sqliteDemo
+// and https://github.com/JimSeker/saveData/tree/master/sqliteDemo2
+
+// As well as information here: https://developer.android.com/reference/android/content/ContentProvider.html
+// here: https://developer.android.com/guide/topics/providers/content-provider-basics.html
+// and here: https://developer.android.com/training/basics/data-storage/databases.html
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -15,13 +21,13 @@ import marcus.mycontentprovider.db.mydb;
 import marcus.mycontentprovider.db.mySQLiteHelper;
 
 public class MyContentProvider extends ContentProvider {
-    private static final int ACCOUNTS = 200;
-    private static final int ACCOUNTS_ID = 210;
-    private static final int CATEGORY = 300;
-    private static final int CATEGORY_ID = 310;
+    private static final int ACCOUNTS = 123;
+    private static final int ACCOUNTS_ID = 234;
+    private static final int CATEGORY = 345;
+    private static final int CATEGORY_ID = 456;
     public static final String PROVIDER_NAME = "edu.cs4730.prog4db";
-    private static final int TRANSACTIONS = 100;
-    private static final int TRANSACTIONS_ID = 110;
+    private static final int TRANSACTIONS = 000;
+    private static final int TRANSACTIONS_ID = 001;
     private static final UriMatcher uriMatcher = new UriMatcher(-1);
     mydb db;
 
@@ -30,8 +36,8 @@ public class MyContentProvider extends ContentProvider {
         uriMatcher.addURI(PROVIDER_NAME, "Category/#", CATEGORY_ID);
         uriMatcher.addURI(PROVIDER_NAME, "Accounts", ACCOUNTS);
         uriMatcher.addURI(PROVIDER_NAME, "Accounts/#", ACCOUNTS_ID);
-        uriMatcher.addURI(PROVIDER_NAME, "Accounts/transactions/#", 100);
-        uriMatcher.addURI(PROVIDER_NAME, "Accounts/transactions/#/#", 110);
+        uriMatcher.addURI(PROVIDER_NAME, "Accounts/transactions/#", 000);
+        uriMatcher.addURI(PROVIDER_NAME, "Accounts/transactions/#/#", 001);
     }
 
     public boolean onCreate() {
@@ -44,14 +50,14 @@ public class MyContentProvider extends ContentProvider {
         String Tablename;
         Cursor mCursor;
         switch (uriMatcher.match(uri)) {
-            case 100:
+            case 000:
                 Tablename = this.db.getAccountname(Integer.valueOf(uri.getLastPathSegment()).intValue());
                 break;
-            case 110:
+            case 001:
                 Tablename = this.db.getAccountname(Integer.valueOf((String) uri.getPathSegments().get(2)).intValue());
                 selection = fixit(selection, "_id = " + uri.getLastPathSegment());
                 break;
-            case ACCOUNTS /*200*/:
+            case ACCOUNTS:
                 Tablename = mySQLiteHelper.TABLE_ACCOUNTS;
                 mCursor = this.db.db.rawQuery("select * from accounts", null);
                 if (mCursor != null) {
@@ -64,7 +70,7 @@ public class MyContentProvider extends ContentProvider {
                     break;
                 }
                 break;
-            case ACCOUNTS_ID /*210*/:
+            case ACCOUNTS_ID:
                 Tablename = mySQLiteHelper.TABLE_ACCOUNTS;
                 mCursor = this.db.db.rawQuery("select * from accounts where _id = " + uri.getLastPathSegment(), null);
                 if (mCursor != null) {
@@ -74,10 +80,10 @@ public class MyContentProvider extends ContentProvider {
                 }
                 selection = fixit(selection, "_id = " + uri.getLastPathSegment());
                 break;
-            case CATEGORY /*300*/:
+            case CATEGORY:
                 Tablename = mySQLiteHelper.TABLE_CAT;
                 break;
-            case CATEGORY_ID /*310*/:
+            case CATEGORY_ID:
                 Tablename = mySQLiteHelper.TABLE_CAT;
                 selection = fixit(selection, "_id = " + uri.getLastPathSegment());
                 break;
@@ -89,16 +95,19 @@ public class MyContentProvider extends ContentProvider {
         return count;
     }
 
+    //drew info and built this based on the info found here:
+    // https://developer.android.com/guide/topics/providers/content-provider-basics.html
+    //and here: https://developer.android.com/reference/android/content/ContentProvider.html
     public String getType(Uri uri) {
         switch (uriMatcher.match(uri)) {
-            case 100:
-            case ACCOUNTS /*200*/:
-            case CATEGORY /*300*/:
-                return "vnd.android.cursor.dir/vnd.cs4730.data";
-            case 110:
-            case ACCOUNTS_ID /*210*/:
-            case CATEGORY_ID /*310*/:
-                return "vnd.android.cursor.item/vnd.cs4730.data";
+            case 000:
+            case ACCOUNTS:
+            case CATEGORY:
+                return "vnd.android.cursor.dir/vnd.cs4730.data"; // Should be accessing the data of this app
+            case 001:
+            case ACCOUNTS_ID:
+            case CATEGORY_ID:
+                return "vnd.android.cursor.item/vnd.cs4730.data"; // Should be accessing the data of this app
             default:
                 throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
@@ -110,18 +119,18 @@ public class MyContentProvider extends ContentProvider {
         }
         String Tablename;
         switch (uriMatcher.match(uri)) {
-            case 100:
+            case 000:
                 Tablename = this.db.getAccountname(Integer.valueOf(uri.getLastPathSegment()).intValue());
                 break;
-            case 110:
-            case ACCOUNTS_ID /*210*/:
-            case CATEGORY_ID /*310*/:
+            case 001:
+            case ACCOUNTS_ID:
+            case CATEGORY_ID:
                 throw new IllegalArgumentException("Unknown URI " + uri);
-            case ACCOUNTS /*200*/:
+            case ACCOUNTS:
                 Tablename = mySQLiteHelper.TABLE_ACCOUNTS;
                 this.db.createAccount(values.getAsString(mySQLiteHelper.KEY_NAME));
                 break;
-            case CATEGORY /*300*/:
+            case CATEGORY:
                 Tablename = mySQLiteHelper.TABLE_CAT;
                 break;
             default:
@@ -139,23 +148,23 @@ public class MyContentProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor c;
         switch (uriMatcher.match(uri)) {
-            case 100:
+            case 000:
                 c = this.db.cpQueryJoin(this.db.getAccountname(Integer.valueOf(uri.getLastPathSegment()).intValue()), projection, selection, selectionArgs, sortOrder);
                 break;
-            case 110:
+            case 001:
                 String Tablename = this.db.getAccountname(Integer.valueOf((String) uri.getPathSegments().get(2)).intValue());
                 c = this.db.cpQueryJoin(Tablename, projection, fixit(selection, Tablename + "._id = " + uri.getLastPathSegment()), selectionArgs, sortOrder);
                 break;
-            case ACCOUNTS /*200*/:
+            case ACCOUNTS:
                 c = this.db.cpQuery(mySQLiteHelper.TABLE_ACCOUNTS, projection, selection, selectionArgs, sortOrder);
                 break;
-            case ACCOUNTS_ID /*210*/:
+            case ACCOUNTS_ID:
                 c = this.db.cpQuery(mySQLiteHelper.TABLE_ACCOUNTS, projection, fixit(selection, "_id = " + uri.getLastPathSegment()), selectionArgs, sortOrder);
                 break;
-            case CATEGORY /*300*/:
+            case CATEGORY:
                 c = this.db.cpQuery(mySQLiteHelper.TABLE_CAT, projection, selection, selectionArgs, sortOrder);
                 break;
-            case CATEGORY_ID /*310*/:
+            case CATEGORY_ID:
                 c = this.db.cpQuery(mySQLiteHelper.TABLE_CAT, projection, fixit(selection, "_id = " + uri.getLastPathSegment()), selectionArgs, sortOrder);
                 break;
             default:
@@ -168,21 +177,21 @@ public class MyContentProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         String Tablename;
         switch (uriMatcher.match(uri)) {
-            case 100:
+            case 000:
                 Tablename = this.db.getAccountname(Integer.valueOf(uri.getLastPathSegment()).intValue());
                 break;
-            case 110:
+            case 001:
                 Tablename = this.db.getAccountname(Integer.valueOf((String) uri.getPathSegments().get(2)).intValue());
                 selection = fixit(selection, "_id = " + uri.getLastPathSegment());
                 break;
-            case ACCOUNTS /*200*/:
+            case ACCOUNTS:
                 throw new IllegalArgumentException("Illegal URI " + uri);
-            case ACCOUNTS_ID /*210*/:
+            case ACCOUNTS_ID:
                 throw new IllegalArgumentException("Illegal URI " + uri);
-            case CATEGORY /*300*/:
+            case CATEGORY:
                 Tablename = mySQLiteHelper.TABLE_CAT;
                 break;
-            case CATEGORY_ID /*310*/:
+            case CATEGORY_ID:
                 Tablename = mySQLiteHelper.TABLE_CAT;
                 selection = fixit(selection, "_id = " + uri.getLastPathSegment());
                 break;
