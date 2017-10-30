@@ -8,4 +8,5 @@ Ran on a Samsung Galaxy S8 running android 7.0, 2960 x 1440 resolution: 571 PPI 
 
 Anything that doesn't work: Nothing, worked fine for me!
 
-
+Grade: 50/50
+Should have included your program 4 in your program 5. It's all supposed to run as one program. 
