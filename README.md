@@ -7,6 +7,3 @@ Description: Simply use a program that accesses / displays the content provider.
 Ran on a Samsung Galaxy S8 running android 7.0, 2960 x 1440 resolution: 571 PPI Emulated on a Nexus 5x API 26 - running android 8.0 - with a screen resolution of 1080 x 1920: 420 dpi
 
 Anything that doesn't work: Nothing, worked fine for me!
-
-Grade: 50/50
-Should have included your program 4 in your program 5. It's all supposed to run as one program. 
